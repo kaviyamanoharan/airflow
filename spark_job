@@ -1,0 +1,22 @@
+from pyspark.sql import SparkSession
+    spark = SparkSession.builder .master("local[1]").appName("ubunto").getOrCreate()
+
+    #read
+
+    csv_data = spark.read.option("header" , True).csv("/home/kaviyamanoharan/airflow/inputfiles/timberland_stock.csv")
+    csv_data.createOrReplaceTempView("stock")
+    n2=spark.sql("select  avg(close) as MeanClose from stock")
+    n3=spark.sql("SELECT MAX(Volume) AS MaxVolume, MIN(Volume) AS MinVolume from stock")
+    n4=spark.sql("SELECT COUNT(*) AS NumberOfDays FROM stock WHERE Close < 60")
+    n5=spark.sql("SELECT (COUNT(*) * 100.0 / (SELECT COUNT(*) FROM stock)) AS Percentage FROM stock WHERE High > 80")
+    n6=spark.sql("SELECT CORR(High, Volume) AS PearsonCorrelation FROM stock")
+    n7=spark.sql("select MONTH(Date) AS Month, avg(close) from stock where group by month")
+    n8 = spark.sql("SELECT  MONTH(Date) AS Month, AVG(Close) AS AvgClose FROM stock GROUP BY  Month ORDER BY  Month")
+# Save output file
+    n2.write.csv('/home/kaviyamanoharan/airflow/outfiles/n2.csv', mode='overwrite', header=True)
+    n3.write.csv('/home/kaviyamanoharan/airflow/outputfiles/n3.csv', mode='overwrite', header=True)
+    n4.write.csv('/home/kaviyamanoharan/airflow/outputfiles/n4.csv', mode='overwrite', header=True)
+    n5.write.csv('/home/kaviyamanoharan/airflow/outputfiles/n5.csv', mode='overwrite', header=True)
+    n6.write.csv('/home/kaviyamanoharan/airflow/outputfiles/n6.csv', mode='overwrite', header=True)
+    n7.write.csv('/home/kaviyamanoharan/airflow/outputfiles/n7.csv', mode='overwrite', header=True)
+    n8.write.csv('/home/kaviyamanoharan/airflow/outputfiles/n8.csv', mode='overwrite', header=True)
